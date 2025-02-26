@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
@@ -43,6 +43,12 @@ def chat():
     if 'username' in session:
         return render_template('chat.html', username=session['username'])
     return redirect(url_for('login'))
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    user_message = request.json.get('message')
+    reply = f"ChatBot: I received your message: '{user_message}'"
+    return jsonify({'reply': reply})
 
 if __name__ == '__main__':
     app.run(debug=True)
