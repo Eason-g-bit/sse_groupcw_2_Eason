@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Chat</title>
+    <title>Chat - {{ chat_name }}</title>
     <style>
         body {
             display: flex;
@@ -61,12 +61,13 @@
             outline: none;
         }
         .input-container button {
-            padding: 15px 30px;
+            padding: 15px 20px;
             border: none;
             background-color: #4CAF50;
             color: white;
             font-size: 16px;
             cursor: pointer;
+            margin-left: 10px;
         }
         .input-container button:hover {
             background-color: #45a049;
@@ -76,6 +77,7 @@
         async function sendMessage() {
             const inputField = document.getElementById('userInput');
             const message = inputField.value;
+            const chatName = '{{ chat_name }}';
             if (!message.trim()) return;
 
             const messagesContainer = document.getElementById('messages');
@@ -90,7 +92,7 @@
             const response = await fetch('/send_message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
+                body: JSON.stringify({ message: message, chat_name: chatName })
             });
             const data = await response.json();
 
@@ -105,6 +107,18 @@
         document.addEventListener('DOMContentLoaded', () => {
             const inputField = document.getElementById('userInput');
             const sendButton = document.getElementById('sendButton');
+            const returnButton = document.getElementById('returnButton');
+
+            // 加载历史记录
+            const messages = {{ messages | tojson }};
+            const messagesContainer = document.getElementById('messages');
+            messages.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message ' + msg.sender;
+                msgDiv.textContent = msg.text;
+                messagesContainer.appendChild(msgDiv);
+            });
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
             sendButton.addEventListener('click', sendMessage);
             inputField.addEventListener('keydown', (e) => {
@@ -112,6 +126,10 @@
                     e.preventDefault();
                     sendMessage();
                 }
+            });
+
+            returnButton.addEventListener('click', () => {
+                window.location.href = '/function';
             });
         });
     </script>
@@ -122,6 +140,7 @@
         <div class="input-container">
             <input type="text" id="userInput" placeholder="Type your message here...">
             <button id="sendButton">Send</button>
+            <button id="returnButton">Return</button>
         </div>
     </div>
 </body>
