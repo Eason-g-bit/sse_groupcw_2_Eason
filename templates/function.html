@@ -29,6 +29,20 @@
         button:hover {
             background-color: #45a049;
         }
+        .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        .logout-container button {
+            width: auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #f44336;
+        }
+        .logout-container button:hover {
+            background-color: #d32f2f;
+        }
         .input-popup {
             display: none;
             flex-direction: column;
@@ -68,6 +82,9 @@
     </script>
 </head>
 <body>
+    <div class="logout-container">
+        <a href="/logout"><button>Logout</button></a>
+    </div>
     <button onclick="showInputPopup()">Start Chat</button>
     <div id="inputPopup" class="input-popup">
         <input type="text" id="chatName" placeholder="Enter chat name">

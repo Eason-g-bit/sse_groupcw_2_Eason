@@ -1,4 +1,3 @@
-# app.py
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 
 app = Flask(__name__)
@@ -46,6 +45,11 @@ def function_page():
     if 'username' not in session:
         return redirect(url_for('login'))
     return render_template('function.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('index'))
 
 @app.route('/start_chat', methods=['POST'])
 def start_chat():

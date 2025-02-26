@@ -1,3 +1,5 @@
+# pytest_app.py
+
 import pytest
 from app import app
 
@@ -50,13 +52,20 @@ def test_login_failure(client):
     })
     assert b'The username or password is incorrect, or the user is not registered.' in response.data
 
-def test_chat_access_without_login(client):
-    response = client.get('/chat', follow_redirects=True)
+def test_logout(client):
+    client.post('/register', data={
+        'username': 'logoutuser',
+        'password': 'logoutpassword'
+    })
+    client.post('/login', data={
+        'username': 'logoutuser',
+        'password': 'logoutpassword'
+    }, follow_redirects=True)
+    response = client.get('/logout', follow_redirects=True)
     assert response.status_code == 200
-    assert b'User Login' in response.data
+    assert b'Hello Deepseek' in response.data
 
 def test_start_chat(client):
-    """测试用例 test_start_chat 解析 JSON 响应并检查 redirect_url 字段"""
     client.post('/register', data={
         'username': 'chatuser',
         'password': 'chatpassword'
@@ -93,13 +102,17 @@ def test_send_message(client):
         'password': 'messagepassword'
     }, follow_redirects=True)
     client.post('/start_chat', json={'chat_name': 'Message Chat'})
-
     response = client.post('/send_message', json={
         'message': 'Hello ChatBot',
         'chat_name': 'Message Chat'
     })
     assert response.status_code == 200
     assert b"ChatBot: I received your message: 'Hello ChatBot'" in response.data
+
+def test_chat_access_without_login(client):
+    response = client.get('/chat', follow_redirects=True)
+    assert response.status_code == 200
+    assert b'User Login' in response.data
 
 def test_return_function_page(client):
     client.post('/register', data={
@@ -111,7 +124,6 @@ def test_return_function_page(client):
         'password': 'returnpassword'
     }, follow_redirects=True)
     client.post('/start_chat', json={'chat_name': 'Return Chat'})
-
     response = client.get('/function')
     assert response.status_code == 200
     assert b'Function Page' in response.data
