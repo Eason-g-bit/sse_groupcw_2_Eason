@@ -28,7 +28,6 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     error = None
-    success = None
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -37,8 +36,8 @@ def register():
             error = "Username already exists, please select another username."
         else:
             users_db[username] = password
-            success = "Successful registration."
-    return render_template('register.html', error=error, success=success)
+            return redirect(url_for('login', success="Registration successful! Please log in."))
+    return render_template('register.html', error=error)
 
 @app.route('/function')
 def function_page():

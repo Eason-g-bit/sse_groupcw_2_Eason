@@ -1,5 +1,3 @@
-# pytest_app.py
-
 import pytest
 from app import app
 
@@ -15,12 +13,13 @@ def test_home_page(client):
     assert b'Hello Deepseek' in response.data
 
 def test_register_user(client):
+    """测试用户注册成功并跳转到登录页"""
     response = client.post('/register', data={
         'username': 'testuser',
         'password': 'testpassword'
     }, follow_redirects=True)
     assert response.status_code == 200
-    assert b'Successful registration.' in response.data
+    assert b'Registration successful! Please log in.' in response.data  # 新增检查注册成功提示
 
 def test_register_existing_user(client):
     client.post('/register', data={
@@ -34,6 +33,7 @@ def test_register_existing_user(client):
     assert b'Username already exists, please select another username.' in response.data
 
 def test_login_success(client):
+    """测试用户登录成功并跳转到 function 页面"""
     client.post('/register', data={
         'username': 'loginuser',
         'password': 'loginpassword'
@@ -46,13 +46,16 @@ def test_login_success(client):
     assert b'Function Page' in response.data
 
 def test_login_failure(client):
+    """测试登录失败后是否触发注册弹窗"""
     response = client.post('/login', data={
         'username': 'wronguser',
         'password': 'wrongpassword'
     })
     assert b'The username or password is incorrect, or the user is not registered.' in response.data
+    assert b'Do you want to register?' in response.data  # 额外检查弹窗内容是否存在
 
 def test_logout(client):
+    """测试用户登出后是否返回首页"""
     client.post('/register', data={
         'username': 'logoutuser',
         'password': 'logoutpassword'
