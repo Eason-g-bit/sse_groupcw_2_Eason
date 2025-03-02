@@ -1,6 +1,7 @@
+/* 🔥 全局样式 */
 body {
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #240b36, #c31432);
+    background: linear-gradient(135deg, #1b1b1b, #3a1c71);
     color: white;
     text-align: center;
     height: 100vh;
@@ -8,28 +9,77 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    animation: backgroundAnimation 10s infinite alternate;
 }
 
-@keyframes backgroundAnimation {
-    0% { background: linear-gradient(135deg, #240b36, #c31432); }
-    100% { background: linear-gradient(135deg, #ff0080, #ff8c00); }
-}
-
-#login-register-form, #selection-container, #chat-naming-container, #chat-container, #history-container {
+/* 💬 聊天窗口 */
+#chat-container {
     background: rgba(255, 255, 255, 0.15);
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(15px);
-    width: 380px;
-    transition: transform 0.3s;
-}
-#login-register-form:hover, #selection-container:hover, #chat-naming-container:hover, #chat-container:hover, #history-container:hover {
-    transform: scale(1.05);
+    width: 60%;
+    height: 75vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-input {
+/* 🗨️ 聊天框 */
+#chat-box {
+    flex-grow: 1;
+    overflow-y: auto;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    max-height: 80%;
+    min-height: 400px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* 🔄 聊天气泡样式 */
+.chat-message {
+    padding: 12px 15px;
+    border-radius: 12px;
+    margin: 5px 0;
+    max-width: 70%;
+    font-size: 16px;
+    word-wrap: break-word;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+}
+
+/* 🟢 GPT 消息（左侧） */
+.chat-message.assistant {
+    background: rgba(255, 255, 255, 0.2);
+    text-align: left;
+    align-self: flex-start;
+    border-left: 5px solid #ff9800;
+}
+
+/* 🔵 用户消息（右侧） */
+.chat-message.user {
+    background: rgba(0, 200, 255, 0.3);
+    text-align: right;
+    align-self: flex-end;
+    border-right: 5px solid #4caf50;
+}
+
+/* 🗨️ 文本自动换行，确保不会溢出 */
+.chat-message p {
+    margin: 0;
+    padding: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ✍️ 输入框 */
+#message {
     width: 90%;
     padding: 12px;
     border: none;
@@ -37,16 +87,16 @@ input {
     outline: none;
     background: rgba(255, 255, 255, 0.3);
     color: white;
-    margin: 10px 0;
-    font-size: 18px;
-    text-align: center;
+    font-size: 16px;
+    text-align: left;
     transition: 0.3s;
 }
-input:focus {
+#message:focus {
     background: rgba(255, 255, 255, 0.6);
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
 }
 
+/* 🔘 发送 & 返回按钮 */
 button {
     width: 120px;
     padding: 12px;
@@ -54,7 +104,7 @@ button {
     border-radius: 10px;
     background: linear-gradient(45deg, #ff00cc, #3333ff);
     color: white;
-    font-size: 18px;
+    font-size: 16px;
     cursor: pointer;
     transition: 0.3s;
     margin: 5px;
@@ -63,55 +113,4 @@ button {
 button:hover {
     transform: scale(1.15);
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
-}
-
-#chat-box {
-    height: 350px;
-    overflow-y: auto;
-    border: 3px solid white;
-    padding: 12px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.chat-message {
-    animation: fadeIn 0.5s ease-in-out;
-    margin: 8px 0;
-    font-size: 18px;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 8px;
-    border-radius: 5px;
-}
-
-h2 {
-    text-transform: uppercase;
-    background: -webkit-linear-gradient(#ff00cc, #3333ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-ul {
-    list-style: none;
-    padding: 0;
-}
-ul li a {
-    text-decoration: none;
-    color: white;
-    display: block;
-    padding: 10px;
-    transition: 0.3s;
-    font-size: 18px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-}
-ul li a:hover {
-    background: rgba(255, 255, 255, 0.5);
-    transform: scale(1.05);
 }

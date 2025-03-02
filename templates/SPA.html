@@ -50,146 +50,69 @@
     </div>
 
     <script>
-    let currentChatName = '';
+        let currentChatName = '';
 
-    // 处理注册
-    async function registerUser() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+        // 处理注册
+        async function registerUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-        try {
-            const response = await fetch('/api/register', {
-                method: 'POST',
-                body: JSON.stringify({ username, password }),
-                headers: { 'Content-Type': 'application/json' }
-            });
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
 
-            const data = await response.json();
-            document.getElementById('error-message').innerText = data.message;
-        } catch (error) {
-            console.error("Registration error:", error);
-        }
-    }
-
-    // 处理登录
-    async function loginUser() {
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-
-        try {
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                body: JSON.stringify({ username, password }),
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                localStorage.setItem('token', data.token);
-                document.getElementById('login-register-form').style.display = 'none';
-                document.getElementById('selection-container').style.display = 'block';
-            } else {
+                const data = await response.json();
                 document.getElementById('error-message').innerText = data.message;
+            } catch (error) {
+                console.error("Registration error:", error);
             }
-        } catch (error) {
-            console.error("Login error:", error);
         }
-    }
 
-    // 显示命名聊天界面
-    function showChatNaming() {
-        document.getElementById('selection-container').style.display = 'none';
-        document.getElementById('chat-naming-container').style.display = 'block';
-    }
+        // 处理登录
+        async function loginUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-    // 处理新对话
-    async function startChat() {
-        const chatName = document.getElementById('chat-name').value.trim();
-        if (!chatName) return alert("Chat name cannot be empty!");
-
-        currentChatName = chatName;
-        document.getElementById('chat-box').innerHTML = "";
-
-        const response = await fetch('/api/start_chat', {
-            method: 'POST',
-            body: JSON.stringify({ chat_name: chatName }),
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-            document.getElementById('chat-title').innerText = `Chat: ${chatName}`;
-            document.getElementById('chat-naming-container').style.display = 'none';
-            document.getElementById('chat-container').style.display = 'block';
-            fetchChatHistory(chatName);
-        } else {
-            alert(data.message);
-        }
-    }
-
-    // 获取历史对话列表
-    async function fetchChatHistoryList() {
-        try {
-            const response = await fetch('/api/chat_list', {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                document.getElementById('selection-container').style.display = 'none';
-                document.getElementById('history-container').style.display = 'block';
-
-                const historyList = document.getElementById('history-list');
-                historyList.innerHTML = '';
-
-                data.chats.forEach(chat => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<a href="#" onclick="resumeChat('${chat}')">${chat}</a>`;
-                    historyList.appendChild(li);
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    body: JSON.stringify({ username, password }),
+                    headers: { 'Content-Type': 'application/json' }
                 });
-            } else {
-                alert(data.message);
+
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    document.getElementById('login-register-form').style.display = 'none';
+                    document.getElementById('selection-container').style.display = 'block';
+                } else {
+                    document.getElementById('error-message').innerText = data.message;
+                }
+            } catch (error) {
+                console.error("Login error:", error);
             }
-        } catch (error) {
-            console.error("Error fetching chat history:", error);
         }
-    }
 
-    async function fetchChatHistory(chatName) {
-        try {
-            const response = await fetch(`/api/chat_history?chat_name=${encodeURIComponent(chatName)}`, {
-                method: 'GET',
-                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                const chatBox = document.getElementById('chat-box');
-                chatBox.innerHTML = "";
-                data.messages.forEach(msg => {
-                    updateChatBox(msg.sender, msg.message);
-                });
-            } else {
-                alert(data.message);
-            }
-        } catch (error) {
-            console.error("Error fetching chat history:", error);
+        // 显示命名聊天界面
+        function showChatNaming() {
+            document.getElementById('selection-container').style.display = 'none';
+            document.getElementById('chat-naming-container').style.display = 'block';
         }
-    }
 
-    // 发送消息
-    async function sendMessage() {
-        const message = document.getElementById('message').value.trim();
-        if (!message) return;
+        // 处理新对话
+        async function startChat() {
+            const chatName = document.getElementById('chat-name').value.trim();
+            if (!chatName) return alert("Chat name cannot be empty!");
 
-        try {
-            const response = await fetch('/api/send_message', {
+            currentChatName = chatName;
+            document.getElementById('chat-box').innerHTML = "";
+
+            const response = await fetch('/api/start_chat', {
                 method: 'POST',
-                body: JSON.stringify({ message, chat_name: currentChatName }),
+                body: JSON.stringify({ chat_name: chatName }),
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -198,40 +121,173 @@
 
             const data = await response.json();
             if (response.ok) {
-                updateChatBox('User', message);
-                updateChatBox('GPT', data.message);
-                document.getElementById('message').value = '';
+                document.getElementById('chat-title').innerText = `Chat: ${chatName}`;
+                document.getElementById('chat-naming-container').style.display = 'none';
+                document.getElementById('chat-container').style.display = 'block';
+                fetchChatHistory(chatName);
             } else {
                 alert(data.message);
             }
-        } catch (error) {
-            console.error("Send message error:", error);
         }
-    }
 
-    // 更新聊天框
-    function updateChatBox(sender, message) {
-        const chatBox = document.getElementById('chat-box');
-        chatBox.innerHTML += `<p><strong>${sender}:</strong> ${message}</p>`;
-    }
+        // 获取历史对话列表
+        async function fetchChatHistoryList() {
+            try {
+                const response = await fetch('/api/chat_list', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
 
-    // 继续历史对话
-    function resumeChat(chatName) {
-        currentChatName = chatName;
-        document.getElementById('history-container').style.display = 'none';
-        document.getElementById('chat-title').innerText = `Chat: ${chatName}`;
-        document.getElementById('chat-container').style.display = 'block';
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById('selection-container').style.display = 'none';
+                    document.getElementById('history-container').style.display = 'block';
 
-        document.getElementById('chat-box').innerHTML = "";
-        fetchChatHistory(chatName);
-    }
+                    const historyList = document.getElementById('history-list');
+                    historyList.innerHTML = '';
+
+                    data.chats.forEach(chat => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<a href="#" onclick="resumeChat('${chat}')">${chat}</a>`;
+                        historyList.appendChild(li);
+                    });
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching chat history:", error);
+            }
+        }
+
+        // 拉取历史对话内容
+        async function fetchChatHistory(chatName) {
+            try {
+                const response = await fetch(`/api/chat_history?chat_name=${encodeURIComponent(chatName)}`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+                });
+
+                const data = await response.json();
+                console.log("[DEBUG] Chat history:", data); // ✅ 添加调试
+
+                if (response.ok && data.messages) {
+                    const chatBox = document.getElementById('chat-box');
+                    chatBox.innerHTML = "";
+
+                    data.messages.forEach(msg => {
+                        const sender = msg.role || "Unknown";  // ✅ 避免 undefined
+                        const message = msg.content || "[Empty Message]";  // ✅ 避免 undefined
+                        updateChatBox(sender, message);
+                    });
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error("Error fetching chat history:", error);
+            }
+        }
+
+
+        // 发送消息（流式响应）
+        async function sendMessage() {
+            const message = document.getElementById('message').value.trim();
+            if (!message) return;
+
+            // 先显示用户这行
+            updateChatBox('User', message);
+            // 清空输入框
+            document.getElementById('message').value = '';
+
+            try {
+                const response = await fetch('/api/send_message', {
+                    method: 'POST',
+                    body: JSON.stringify({ message, chat_name: currentChatName }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let done = false;
+                let assistantMessage = '';
+
+                // 先创建一个空的 GPT 行，后续仅更新这行文本
+                updateChatBox('GPT', '');
+
+                while (!done) {
+                    const { value, done: readerDone } = await reader.read();
+                    done = readerDone;
+                    if (value) {
+                        // 本次读取到的新 chunk 内容
+                        const chunk = decoder.decode(value, { stream: true });
+                        console.log("[DEBUG] chunk in front-end:", chunk);
+
+                        // 累加到 assistantMessage
+                        assistantMessage += chunk;
+
+                        // 只更新最后一行 GPT 内容
+                        updateLastChatBubble('GPT', assistantMessage);
+                    }
+                }
+
+            } catch (error) {
+                console.error("Send message error:", error);
+            }
+        }
+
+        function mapRoleToDisplayName(role) {
+            if (role === 'assistant') return 'GPT';
+            if (role === 'user') return 'User';
+            return 'unidentified';
+        }
+        // 更新聊天框（新增一条消息）
+        function updateChatBox(sender, message) {
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+
+            // 赋予消息适当的类
+            messageDiv.classList.add('chat-message', sender.toLowerCase() === 'user' ? 'user' : 'assistant');
+
+            // 插入消息内容
+            messageDiv.innerHTML = `<p><strong>${sender}:</strong> ${message}</p>`;
+
+            // 添加到聊天框
+            chatBox.appendChild(messageDiv);
+
+            // 滚动到底部
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
 
 
 
+        // 仅更新“最后一行”指定 sender 的文本
+        function updateLastChatBubble(sender, newContent) {
+            const chatBox = document.getElementById('chat-box');
+            const paragraphs = chatBox.getElementsByTagName('p');
 
+            // 从后往前找，匹配 “sender:”
+            for (let i = paragraphs.length - 1; i >= 0; i--) {
+                const p = paragraphs[i];
+                if (p.textContent.startsWith(`${sender}:`)) {
+                    // 找到最后一个同样sender的行，更新其内容
+                    p.innerHTML = `<strong>${sender}:</strong> ${newContent}`;
+                    return;
+                }
+            }
+        }
 
+        // 继续历史对话
+        function resumeChat(chatName) {
+            currentChatName = chatName;
+            document.getElementById('history-container').style.display = 'none';
+            document.getElementById('chat-title').innerText = `Chat: ${chatName}`;
+            document.getElementById('chat-container').style.display = 'block';
 
-
+            document.getElementById('chat-box').innerHTML = "";
+            fetchChatHistory(chatName);
+        }
 
         // 返回选择界面
         function returnToSelection() {

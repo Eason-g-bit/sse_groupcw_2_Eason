@@ -1,93 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from supabase import create_client
 
-app = Flask(__name__)
-app.secret_key = 'supersecretkey'
+# 初始化 Supabase 客户端
+url = "https://ofxbmmidmnqpuueyncqu.supabase.co"
+key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meGJtbWlkbW5xcHV1ZXluY3F1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA4NjEwMjYsImV4cCI6MjA1NjQzNzAyNn0.qo7L6egD7Tl3l4lUOq8WnfwX2aL3Vuvec4UapZFBxbA"
 
-users_db = {}
-chat_history = {}
-chat_records = {}
+client = create_client(url, key)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# 删除 `users` 表中的所有记录
+client.table('users').delete().neq('id', '0').execute()
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error = None
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        if username in users_db and users_db[username] == password:
-            session['username'] = username
-            return redirect(url_for('function_page'))
-        else:
-            error = "The username or password is incorrect, or the user is not registered."
-    return render_template('login.html', error=error)
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    error = None
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        if username in users_db:
-            error = "Username already exists, please select another username."
-        else:
-            users_db[username] = password
-            return redirect(url_for('login', success="Registration successful! Please log in."))
-    return render_template('register.html', error=error)
-
-@app.route('/function')
-def function_page():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    return render_template('function.html')
-
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('index'))
-
-@app.route('/start_chat', methods=['POST'])
-def start_chat():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    chat_name = request.json.get('chat_name')
-    username = session['username']
-    chat_history.setdefault(username, []).append(chat_name)
-    chat_records.setdefault((username, chat_name), [])
-    return jsonify({'redirect_url': url_for('chat', chat_name=chat_name)})
-
-@app.route('/history')
-def history():
-    if 'username' not in session:
-        return redirect(url_for('login'))
-    username = session['username']
-    user_history = chat_history.get(username, [])
-    return render_template('history.html', history=user_history)
-
-@app.route('/chat')
-def chat():
-    if 'username' in session:
-        chat_name = request.args.get('chat_name', 'Default Chat')
-        username = session['username']
-        messages = chat_records.get((username, chat_name), [])
-        return render_template('chat.html', username=username, chat_name=chat_name, messages=messages)
-    return redirect(url_for('login'))
-
-@app.route('/send_message', methods=['POST'])
-def send_message():
-    user_message = request.json.get('message')
-    chat_name = request.json.get('chat_name')
-    username = session['username']
-
-    chat_records.setdefault((username, chat_name), []).append({'sender': 'user', 'text': user_message})
-
-    reply = f"ChatBot: I received your message: '{user_message}'"
-    chat_records[(username, chat_name)].append({'sender': 'bot', 'text': reply})
-    return jsonify({'reply': reply})
-
-if __name__ == '__main__':
-    app.run(debug=True)
+# 删除 `chat_history` 表中的所有记录
+client.table('chat_history').delete().neq('id', '0').execute()
