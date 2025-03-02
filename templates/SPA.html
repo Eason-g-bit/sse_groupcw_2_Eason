@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Clone</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 登录/注册表单 -->
+    <div id="login-register-form">
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <button onclick="loginUser()">Login</button>
+        <button onclick="registerUser()">Register</button>
+    </div>
+
+    <!-- 聊天界面 -->
+    <div id="chat-container" style="display:none;">
+        <h2>Chat with GPT</h2>
+        <div id="chat-box"></div>
+        <input type="text" id="message" placeholder="Enter message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        async function registerUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                body: JSON.stringify({ username, password }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            alert(data.message);
+        }
+
+        async function loginUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                body: JSON.stringify({ username, password }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                document.getElementById('login-register-form').style.display = 'none';
+                document.getElementById('chat-container').style.display = 'block';
+                fetchChatHistory();
+            } else {
+                alert(data.message);
+            }
+        }
+
+        async function sendMessage() {
+            const message = document.getElementById('message').value;
+
+            const response = await fetch('/api/send_message', {
+                method: 'POST',
+                body: JSON.stringify({ message }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                document.getElementById('chat-box').innerHTML += `<p>User: ${message}</p>`;
+                document.getElementById('message').value = '';
+                fetchChatHistory();
+            } else {
+                alert(data.message);
+            }
+        }
+
+        async function fetchChatHistory() {
+            const response = await fetch('/api/chat_history', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+            const data = await response.json();
+            if (data.messages) {
+                const chatBox = document.getElementById('chat-box');
+                chatBox.innerHTML = '';
+                data.messages.forEach(msg => {
+                    chatBox.innerHTML += `<p>${msg.sender}: ${msg.message}</p>`;
+                });
+            }
+        }
+    </script>
+</body>
+</html>
