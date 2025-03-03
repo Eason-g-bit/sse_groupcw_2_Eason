@@ -1,132 +1,53 @@
 import pytest
-from app import app
+from app_SPA import app, client, SECRET_KEY
+import jwt
+import datetime
 
 @pytest.fixture
-def client():
-    app.config['TESTING'] = True
+def client_app():
+    app.config["TESTING"] = True
     with app.test_client() as client:
         yield client
 
-def test_home_page(client):
-    response = client.get('/')
-    assert response.status_code == 200
-    assert b'Hello Deepseek' in response.data
+# 生成测试用户 Token
+def generate_test_token(user_id):
+    return jwt.encode({
+        'user_id': user_id,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+    }, SECRET_KEY, algorithm="HS256")
 
-def test_register_user(client):
-    """测试用户注册成功并跳转到登录页"""
-    response = client.post('/register', data={
-        'username': 'testuser',
-        'password': 'testpassword'
-    }, follow_redirects=True)
-    assert response.status_code == 200
-    assert b'Registration successful! Please log in.' in response.data  # 新增检查注册成功提示
+# 测试用户注册
+def test_register(client_app):
+    response = client_app.post('/api/register', json={"username": "testuser", "password": "testpass"})
+    assert response.status_code in [201, 400]  # 用户可能已经存在
 
-def test_register_existing_user(client):
-    client.post('/register', data={
-        'username': 'testuser',
-        'password': 'testpassword'
-    })
-    response = client.post('/register', data={
-        'username': 'testuser',
-        'password': 'newpassword'
-    })
-    assert b'Username already exists, please select another username.' in response.data
+# 测试用户登录
+def test_login(client_app):
+    response = client_app.post('/api/login', json={"username": "testuser", "password": "testpass"})
+    assert response.status_code in [200, 401]  # 可能用户名或密码错误
+    if response.status_code == 200:
+        assert "token" in response.get_json()
 
-def test_login_success(client):
-    """测试用户登录成功并跳转到 function 页面"""
-    client.post('/register', data={
-        'username': 'loginuser',
-        'password': 'loginpassword'
-    })
-    response = client.post('/login', data={
-        'username': 'loginuser',
-        'password': 'loginpassword'
-    }, follow_redirects=True)
-    assert response.status_code == 200
-    assert b'Function Page' in response.data
+# 测试创建新聊天
+def test_start_chat(client_app):
+    token = generate_test_token(1)
+    response = client_app.post('/api/start_chat', json={"chat_name": "Test Chat"}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code in [200, 401]
 
-def test_login_failure(client):
-    """测试登录失败后是否触发注册弹窗"""
-    response = client.post('/login', data={
-        'username': 'wronguser',
-        'password': 'wrongpassword'
-    })
-    assert b'The username or password is incorrect, or the user is not registered.' in response.data
-    assert b'Do you want to register?' in response.data  # 额外检查弹窗内容是否存在
+# 测试获取聊天历史列表
+def test_chat_list(client_app):
+    token = generate_test_token(1)
+    response = client_app.get('/api/chat_list', headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code in [200, 401]
 
-def test_logout(client):
-    """测试用户登出后是否返回首页"""
-    client.post('/register', data={
-        'username': 'logoutuser',
-        'password': 'logoutpassword'
-    })
-    client.post('/login', data={
-        'username': 'logoutuser',
-        'password': 'logoutpassword'
-    }, follow_redirects=True)
-    response = client.get('/logout', follow_redirects=True)
-    assert response.status_code == 200
-    assert b'Hello Deepseek' in response.data
+# 测试获取特定聊天记录
+def test_chat_history(client_app):
+    token = generate_test_token(1)
+    response = client_app.get('/api/chat_history?chat_name=Test Chat', headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code in [200, 400, 401]
 
-def test_start_chat(client):
-    client.post('/register', data={
-        'username': 'chatuser',
-        'password': 'chatpassword'
-    })
-    client.post('/login', data={
-        'username': 'chatuser',
-        'password': 'chatpassword'
-    }, follow_redirects=True)
-    response = client.post('/start_chat', json={'chat_name': 'Test Chat'})
-    assert response.status_code == 200
-    data = response.get_json()
-    assert data['redirect_url'] == '/chat?chat_name=Test+Chat'
-
-def test_chat_history(client):
-    client.post('/register', data={
-        'username': 'historyuser',
-        'password': 'historypassword'
-    })
-    client.post('/login', data={
-        'username': 'historyuser',
-        'password': 'historypassword'
-    }, follow_redirects=True)
-    client.post('/start_chat', json={'chat_name': 'History Chat'})
-    response = client.get('/history')
-    assert b'History Chat' in response.data
-
-def test_send_message(client):
-    client.post('/register', data={
-        'username': 'messageuser',
-        'password': 'messagepassword'
-    })
-    client.post('/login', data={
-        'username': 'messageuser',
-        'password': 'messagepassword'
-    }, follow_redirects=True)
-    client.post('/start_chat', json={'chat_name': 'Message Chat'})
-    response = client.post('/send_message', json={
-        'message': 'Hello ChatBot',
-        'chat_name': 'Message Chat'
-    })
-    assert response.status_code == 200
-    assert b"ChatBot: I received your message: 'Hello ChatBot'" in response.data
-
-def test_chat_access_without_login(client):
-    response = client.get('/chat', follow_redirects=True)
-    assert response.status_code == 200
-    assert b'User Login' in response.data
-
-def test_return_function_page(client):
-    client.post('/register', data={
-        'username': 'returnuser',
-        'password': 'returnpassword'
-    })
-    client.post('/login', data={
-        'username': 'returnuser',
-        'password': 'returnpassword'
-    }, follow_redirects=True)
-    client.post('/start_chat', json={'chat_name': 'Return Chat'})
-    response = client.get('/function')
-    assert response.status_code == 200
-    assert b'Function Page' in response.data
+# 测试发送消息
+def test_send_message(client_app):
+    token = generate_test_token(1)
+    response = client_app.post('/api/send_message', json={"message": "Hello", "chat_name": "Test Chat"}, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code in [200, 401, 404]

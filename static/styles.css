@@ -1,4 +1,3 @@
-/* 🔥 全局样式 */
 body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #1b1b1b, #3a1c71);
@@ -13,11 +12,8 @@ body {
 
 /* 💬 聊天窗口 */
 #chat-container {
-    background: rgba(255, 255, 255, 0.15);
+    background: none; /* 移除淡白色背景 */
     padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(15px);
     width: 60%;
     height: 75vh;
     display: flex;
@@ -59,15 +55,23 @@ body {
     background: rgba(255, 255, 255, 0.2);
     text-align: left;
     align-self: flex-start;
-    border-left: 5px solid #ff9800;
+    border-left: 4px solid #ff9800;
 }
 
 /* 🔵 用户消息（右侧） */
 .chat-message.user {
-    background: rgba(0, 200, 255, 0.3);
-    text-align: right;
+    background: linear-gradient(135deg, rgba(0, 255, 200, 0.3), rgba(0, 255, 255, 0.5)); /* ✅ 霓虹青蓝色渐变 */
+    color: white;
+    text-align: left;
     align-self: flex-end;
-    border-right: 5px solid #4caf50;
+    padding: 12px 15px;
+    border-radius: 12px;
+    max-width: 60%;
+    word-wrap: break-word;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0, 255, 200, 0.4); /* ✅ 青蓝色发光 */
+    border-right: 4px solid #00ffcc;  /* ✅ 增加亮色边框 */
 }
 
 /* 🗨️ 文本自动换行，确保不会溢出 */
@@ -78,22 +82,36 @@ body {
     word-break: break-word;
 }
 
-/* ✍️ 输入框 */
-#message {
-    width: 90%;
+/* ✨ 赛博朋克输入框 */
+input[type="text"],
+input[type="password"] {
+    width: 220px;
     padding: 12px;
     border: none;
     border-radius: 10px;
     outline: none;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
     color: white;
     font-size: 16px;
-    text-align: left;
+    text-align: center;
     transition: 0.3s;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    font-family: 'Poppins', sans-serif;
 }
-#message:focus {
-    background: rgba(255, 255, 255, 0.6);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+
+/* 🎆 赛博朋克聚焦效果 */
+input[type="text"]:focus,
+input[type="password"]:focus {
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px #ff00ff, 0 0 25px #7700ff;
+    border: 1px solid #ff00ff;
+}
+
+/* 🏴‍☠️ 让输入框的 Placeholder 更酷 */
+input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    font-size: 14px;
 }
 
 /* 🔘 发送 & 返回按钮 */
@@ -113,4 +131,93 @@ button {
 button:hover {
     transform: scale(1.15);
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.7);
+}
+
+/* 📝 聊天输入框整体布局 */
+#message-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-end; /* 让按钮对齐到右侧 */
+    gap: 10px; /* 按钮与输入框之间留出一些空间 */
+}
+
+/* 💬 让输入框最大化填充 */
+#message {
+    flex-grow: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    outline: none;
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 16px;
+    text-align: left;
+    transition: 0.3s;
+    width: 100%;
+}
+
+/* 📌 让按钮宽度固定 */
+#message-container button {
+    width: 120px;
+    flex-shrink: 0;
+}
+
+/* 🔹 历史记录列表 */
+#history-list {
+    list-style: none;
+    padding: 0;
+}
+
+#history-list li a {
+    display: inline-block;
+    color: #ffffff; /* ✅ 亮白色，增强对比 */
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    transition: 0.3s;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.8); /* ✅ 增加霓虹光效 */
+}
+
+#history-list li a:hover {
+    color: #00ffff; /* ✅ 霓虹蓝 */
+    text-shadow: 0 0 15px rgba(0, 255, 255, 1), 0 0 30px rgba(0, 255, 255, 0.8);
+    transform: scale(1.1);
+}
+
+h2 {
+    font-size: 40px;
+    font-weight: bold;
+    color: #fff;
+    text-transform: uppercase;
+    text-shadow:
+        0 0 10px #ff00ff,
+        0 0 20px #ff00ff,
+        0 0 30px #ff00ff,
+        0 0 40px #7700ff,
+        0 0 50px #7700ff;
+    animation: flicker 1.5s infinite alternate;
+}
+
+/* 💡 霓虹灯闪烁效果 */
+@keyframes flicker {
+    0% { opacity: 1; text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; }
+    100% { opacity: 0.8; text-shadow: 0 0 15px #7700ff, 0 0 25px #7700ff; }
+}
+
+#title-bar {
+    width: 50%;
+    height: 5px;
+    background: linear-gradient(90deg, #ff00ff, #7700ff, #ff00ff);
+    box-shadow: 0 0 15px #ff00ff, 0 0 25px #7700ff;
+    margin: 10px auto;
+    animation: glow 1.5s infinite alternate;
+}
+
+/* 💡 让横线的光晕呼吸变化 */
+@keyframes glow {
+    0% { box-shadow: 0 0 10px #ff00ff; }
+    100% { box-shadow: 0 0 20px #7700ff; }
 }
