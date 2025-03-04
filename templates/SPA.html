@@ -148,7 +148,21 @@
 
                     data.chats.forEach(chat => {
                         const li = document.createElement('li');
-                        li.innerHTML = `<a href="#" onclick="resumeChat('${chat}')">${chat}</a>`;
+
+                        // ✅ 创建聊天名称链接
+                        const chatLink = document.createElement('a');
+                        chatLink.href = "#";
+                        chatLink.innerText = chat;
+                        chatLink.onclick = () => resumeChat(chat);
+
+                        // ✅ 创建删除按钮
+                        const deleteButton = document.createElement('button');
+                        deleteButton.innerText = "🗑️ Delete";
+                        deleteButton.classList.add("delete-btn");
+                        deleteButton.onclick = () => deleteChat(chat);
+
+                        li.appendChild(chatLink);
+                        li.appendChild(deleteButton);
                         historyList.appendChild(li);
                     });
                 } else {
@@ -187,6 +201,30 @@
             }
         }
 
+        async function deleteChat(chatName) {
+            if (!confirm(`Are you sure you want to delete "${chatName}"?`)) return;
+
+            try {
+                const response = await fetch('/api/delete_chat', {
+                    method: 'POST',
+                    body: JSON.stringify({ chat_name: chatName }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    alert("Chat deleted successfully");
+                    fetchChatHistoryList(); // ✅ 重新加载列表
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                console.error("Error deleting chat:", error);
+            }
+        }
 
         // 发送消息（流式响应）
         async function sendMessage() {

@@ -221,3 +221,24 @@ h2 {
     0% { box-shadow: 0 0 10px #ff00ff; }
     100% { box-shadow: 0 0 20px #7700ff; }
 }
+
+/* 🗑️ 删除按钮样式 */
+/* 删除按钮 - 青色霓虹 */
+.delete-btn {
+    background: linear-gradient(135deg, #00e5ff, #008cff); /* 青蓝色渐变 */
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.8); /* 青蓝色光晕 */
+}
+
+.delete-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 1), 0 0 40px rgba(0, 229, 255, 0.8);
+}
+

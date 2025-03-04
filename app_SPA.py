@@ -348,6 +348,31 @@ def send_message():
     except jwt.InvalidTokenError:
         return jsonify({"message": "Invalid token"}), 401
 
+# **删除特定聊天**
+@app.route('/api/delete_chat', methods=['POST'])
+def delete_chat():
+    token = request.headers.get('Authorization').split(" ")[1]
+    data = request.get_json()
+    chat_name = data.get('chat_name')
+
+    try:
+        decoded_token = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        user_id = decoded_token['user_id']
+
+        # **检查该聊天是否存在**
+        conversation = client.table('chat_history').select('*').eq('user_id', user_id).eq('name', chat_name).execute()
+
+        if not conversation.data:
+            return jsonify({"message": "Chat not found"}), 404
+
+        # **删除该聊天**
+        client.table('chat_history').delete().eq('user_id', user_id).eq('name', chat_name).execute()
+
+        return jsonify({"message": "Chat deleted successfully"}), 200
+    except jwt.ExpiredSignatureError:
+        return jsonify({"message": "Token expired"}), 401
+    except jwt.InvalidTokenError:
+        return jsonify({"message": "Invalid token"}), 401
 
 if __name__ == '__main__':
     app.run(debug=True)
