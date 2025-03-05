@@ -3,13 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGPT Clone</title>
+    <title>DeepSeek Clone</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <!-- ✅ 加入 MathJax 以支持 LaTeX 公式 -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
+
 <body>
     <!-- 登录/注册界面 -->
     <div id="login-register-form">
-        <h2>ChatGPT Clone</h2>
+        <h2>DeepSeek Clone</h2>
         <input type="text" id="username" placeholder="Username" required />
         <input type="password" id="password" placeholder="Password" required />
         <button onclick="loginUser()">Login</button>
@@ -35,7 +49,7 @@
 
     <!-- 聊天界面 -->
     <div id="chat-container" style="display:none;">
-        <h2 id="chat-title">Chat with GPT</h2>
+        <h2 id="chat-title">Chat with DeepSeek</h2>
         <div id="chat-box" style="height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;"></div>
         <input type="text" id="message" placeholder="Enter message..." />
         <button onclick="sendMessage()">Send</button>
@@ -251,8 +265,8 @@
                 let done = false;
                 let assistantMessage = '';
 
-                // 先创建一个空的 GPT 行，后续仅更新这行文本
-                updateChatBox('GPT', '');
+                // 先创建一个空的 DeepSeek 行，后续仅更新这行文本
+                updateChatBox('DeepSeek', '');
 
                 while (!done) {
                     const { value, done: readerDone } = await reader.read();
@@ -265,8 +279,8 @@
                         // 累加到 assistantMessage
                         assistantMessage += chunk;
 
-                        // 只更新最后一行 GPT 内容
-                        updateLastChatBubble('GPT', assistantMessage);
+                        // 只更新最后一行 DeepSeek 内容
+                        updateLastChatBubble('DeepSeek', assistantMessage);
                     }
                 }
 
@@ -276,7 +290,7 @@
         }
 
         function mapRoleToDisplayName(role) {
-            if (role === 'assistant') return 'GPT';
+            if (role === 'assistant') return 'DeepSeek';
             if (role === 'user') return 'User';
             return 'unidentified';
         }
@@ -293,6 +307,8 @@
 
             // 添加到聊天框
             chatBox.appendChild(messageDiv);
+
+            MathJax.typesetPromise();
 
             // 滚动到底部
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -311,6 +327,7 @@
                 if (p.textContent.startsWith(`${sender}:`)) {
                     // 找到最后一个同样sender的行，更新其内容
                     p.innerHTML = `<strong>${sender}:</strong> ${newContent}`;
+                    MathJax.typesetPromise();
                     return;
                 }
             }

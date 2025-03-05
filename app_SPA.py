@@ -17,7 +17,7 @@ client = create_client(url, key)
 SECRET_KEY = '2096f222f081e53ba68b0a77df1291759027c2dbc1214caf379892ea5455688f'
 
 
-# **ChatBot 类（GPT API）**
+# **ChatBot 类（DeepSeek API）**
 # class ChatBot:
 #     def __init__(self):
 #         self.client = OpenAI(api_key="sk-qN8gLbSZOJoxFw8eB7642bEdE5Af43BeBb6035A4BcDa7061",
@@ -328,7 +328,7 @@ def send_message():
         else:
             # 低负载：流式
             print(2)
-            assistant_message = ""  # 用于拼接整段GPT输出
+            assistant_message = ""  # 用于拼接整段DeepSeek输出
 
             def generate():
                 nonlocal assistant_message

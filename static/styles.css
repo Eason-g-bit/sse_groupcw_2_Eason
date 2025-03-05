@@ -50,7 +50,7 @@ body {
     box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
 }
 
-/* 🟢 GPT 消息（左侧） */
+/* 🟢 DeepSeek 消息（左侧） */
 .chat-message.assistant {
     background: rgba(255, 255, 255, 0.2);
     text-align: left;
